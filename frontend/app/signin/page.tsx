@@ -11,15 +11,8 @@ import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
 import { useContext, useRef, useState } from "react";
 import { encrypt } from "@metamask/browser-passworder";
 import { AccountContext } from "@/components/context/accountContext";
-
-const users = [
-  "invalidUser",
-  "Admin",
-  "HealthCI",
-  "HealthCP",
-  "Doctor",
-  "Patient",
-] as const;
+import { users } from "../user-types";
+import { useRouter } from "next/navigation";
 
 type TAccountDetails = {
   seedPhrase: string;
@@ -29,44 +22,50 @@ type TAccountDetails = {
 };
 
 export default function Signin() {
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>();
   const [stage, setStage] = useState<1 | 2>(1);
   const { setAccount } = useContext(AccountContext);
 
-  const accountDtails = useRef({} as TAccountDetails);
+  const router = useRouter();
+
+  const accountDetails = useRef({} as TAccountDetails);
 
   const getAccount = async () => {
-    const seedPhrase = (
-      document.getElementById("seed") as HTMLInputElement
-    ).value
-      .split(" ")
-      .filter((word) => word !== "")
-      .reduce((acc, str) => acc.concat(" ", str)); //refactoring incase of multiple spaces
+    try {
+      const seedPhrase = (
+        document.getElementById("seed") as HTMLInputElement
+      ).value
+        .split(" ")
+        .filter((word) => word !== "")
+        .reduce((acc, str) => acc.concat(" ", str)); //refactoring incase of multiple spaces
 
-    const account = mnemonicToAccount(seedPhrase);
+      const account = mnemonicToAccount(seedPhrase);
 
-    const client = createWalletClient({
-      account,
-      transport: http(),
-    }).extend(publicActions);
-
-    const userType = await client.readContract({
-      address: "0x123",
-      abi: LoginmanagerAbi,
-      functionName: "getUserType",
-    });
-
-    if (users[userType] === "invalidUser") {
-      setError("invalid user");
-    } else {
-      accountDtails.current = {
-        seedPhrase,
+      const client = createWalletClient({
         account,
-        client,
-        usertype: users[userType],
-      };
-      setError("");
-      setStage(2);
+        transport: http(),
+      }).extend(publicActions);
+
+      const userType = await client.readContract({
+        address: "0x123",
+        abi: LoginmanagerAbi,
+        functionName: "getUserType",
+      });
+
+      if (users[userType] !== "invalidUser") {
+        accountDetails.current = {
+          seedPhrase,
+          account,
+          client,
+          usertype: users[userType],
+        };
+        setError(undefined);
+        setStage(2);
+      } else {
+        setError("invalid user");
+      }
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 
@@ -78,31 +77,38 @@ export default function Signin() {
     ).value;
 
     if (password === comfirmation) {
-      const secret = await encrypt(password, accountDtails.current.seedPhrase);
-      localStorage.setItem("data", secret);
+      const seedPhrase = await encrypt(
+        password,
+        accountDetails.current.seedPhrase,
+      );
+      localStorage.setItem("data", seedPhrase);
       setAccount({
-        account: accountDtails.current.account,
-        client: accountDtails.current.client,
+        account: accountDetails.current.account,
+        client: accountDetails.current.client,
       });
-      //route the user to required page based on usertype
+      sessionStorage.setItem("usertype", accountDetails.current.usertype);
+      router.push(`/${accountDetails.current.usertype}`);
     } else {
       setError("password missmatch");
     }
   };
 
   return (
-    <div>
+    <div className="flex h-screen w-screen items-center justify-center">
       {stage === 1 ? (
-        <div>
+        <div className="flex flex-col p-6">
           <label htmlFor="seed">
             SeedPhrase
             <input
               type="text"
               id="seed"
-              placeholder="Enter your 12-key seed-phrase, seperate with space"
+              className="flex h-8 w-full rounded placeholder:overflow-visible placeholder:text-sm"
+              placeholder={`Enter your 12-key seed-phrase,\n seperate with space`}
             />
           </label>
-          {error && <span>{error}</span>}
+          {error && (
+            <span className="p-1 text-right text-sm text-red-400">{error}</span>
+          )}
           <button onClick={getAccount}>Sign in</button>
         </div>
       ) : (

@@ -1,11 +1,16 @@
 import { decrypt } from "@metamask/browser-passworder";
 import { AccountContext } from "@/components/context/accountContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { mnemonicToAccount } from "viem/accounts";
-import { Hex, createWalletClient, http, publicActions } from "viem";
+import { createWalletClient, http, publicActions } from "viem";
+import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
+import { users } from "@/app/user-types";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const { setAccount } = useContext(AccountContext);
+  const [error, setError] = useState<string>();
+  const router = useRouter();
 
   const unlock = async () => {
     const password = (document.getElementById("password") as HTMLInputElement)
@@ -14,26 +19,42 @@ export default function Login() {
     try {
       const deData = (await decrypt(password, enData!)) as string;
       const account = mnemonicToAccount(deData);
+      const client = createWalletClient({
+        account,
+        transport: http(),
+      }).extend(publicActions);
+
+      const usertype = await client.readContract({
+        address: "0x123",
+        abi: LoginmanagerAbi,
+        functionName: "getUserType",
+      });
+
+      sessionStorage.setItem("usertype", users[usertype]);
+      sessionStorage.setItem("secret", password);
+
       setAccount({
         account,
-        client: createWalletClient({
-          account,
-          transport: http(),
-        }).extend(publicActions),
+        client,
       });
+      router.push(`/${users[usertype]}`);
     } catch (e) {
-      //display the error message e.message
-      //(e as Error).message
+      setError((e as Error).message);
     }
   };
 
   return (
-    <div className="flex flex-col rounded-md p-8">
-      <label htmlFor="password">
-        Enter password
-        <input type="text" id="password" />
-      </label>
-      <button onClick={unlock}>login</button>
+    <div className="absolute z-20 flex h-screen w-screen items-center justify-center bg-transparent backdrop-blur-sm">
+      <div className="flex flex-col rounded-md bg-zinc-300 p-6">
+        <label htmlFor="password" className="">
+          Enter password
+          <input type="text" id="password" className=" flex w-full rounded" />
+        </label>
+        {error && (
+          <span className="p-1 text-right text-sm text-red-400">{error}</span>
+        )}
+        <button onClick={unlock}>login</button>
+      </div>
     </div>
   );
 }
