@@ -31,7 +31,7 @@ export default function Login() {
       });
 
       sessionStorage.setItem("usertype", users[usertype]);
-      sessionStorage.setItem("secret", password);
+      sessionStorage.setItem("password", password);
 
       setAccount({
         account,
@@ -44,8 +44,9 @@ export default function Login() {
   };
 
   return (
-    <div className="absolute z-20 flex h-screen w-screen items-center justify-center bg-transparent backdrop-blur-sm">
-      <div className="flex flex-col rounded-md bg-zinc-300 p-6">
+    <div className="absolute z-20 flex h-screen w-screen items-center justify-center bg-transparent backdrop-blur-[3px]">
+      <div className="flex flex-col gap-2 rounded-md bg-zinc-300 p-6">
+        <h1 className="text-xl font-bold">Login</h1>
         <label htmlFor="password" className="">
           Enter password
           <input type="text" id="password" className=" flex w-full rounded" />
@@ -53,7 +54,12 @@ export default function Login() {
         {error && (
           <span className="p-1 text-right text-sm text-red-400">{error}</span>
         )}
-        <button onClick={unlock}>login</button>
+        <button
+          className="w-full rounded bg-blue-800/90 p-1 text-white"
+          onClick={unlock}
+        >
+          login
+        </button>
       </div>
     </div>
   );

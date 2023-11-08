@@ -11,7 +11,7 @@ import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
 import { useContext, useRef, useState } from "react";
 import { encrypt } from "@metamask/browser-passworder";
 import { AccountContext } from "@/components/context/accountContext";
-import { users } from "../user-types";
+import { users } from "../../user-types";
 import { useRouter } from "next/navigation";
 
 type TAccountDetails = {
@@ -73,7 +73,7 @@ export default function Signin() {
     const password = (document.getElementById("password") as HTMLInputElement)
       .value;
     const comfirmation = (
-      document.getElementById("confirmation") as HTMLInputElement
+      document.getElementById("confirm") as HTMLInputElement
     ).value;
 
     if (password === comfirmation) {
@@ -94,35 +94,59 @@ export default function Signin() {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex h-screen w-[70vw] items-center justify-center rounded-l-3xl bg-white">
       {stage === 1 ? (
-        <div className="flex flex-col p-6">
-          <label htmlFor="seed">
+        <div className="flex flex-col items-center gap-4 rounded-md p-6 shadow-md">
+          <h1 className="text-center text-lg font-medium">
+            Get started!
+            <p className="text-xs font-extralight">
+              import the seed phrase of your existing account
+            </p>
+          </h1>
+          <label className="w-full text-sm" htmlFor="seed">
             SeedPhrase
             <input
               type="text"
               id="seed"
-              className="flex h-8 w-full rounded placeholder:overflow-visible placeholder:text-sm"
-              placeholder={`Enter your 12-key seed-phrase,\n seperate with space`}
+              className="flex h-8 w-full rounded border border-zinc-300 placeholder:text-center placeholder:text-sm"
+              placeholder={`Enter your 12-key seed-phrase`}
             />
           </label>
           {error && (
             <span className="p-1 text-right text-sm text-red-400">{error}</span>
           )}
-          <button onClick={getAccount}>Sign in</button>
+          <button
+            className="w-full rounded bg-blue-800/90 p-1 text-white"
+            onClick={getAccount}
+          >
+            Sign in
+          </button>
         </div>
       ) : (
-        <div>
-          <label htmlFor="password">
+        <div className="flex flex-col items-center gap-4 rounded-md p-6 shadow-md">
+          <label className="w-full text-sm" htmlFor="password">
             password
-            <input type="text" id="password" />
+            <input
+              type="text"
+              id="password"
+              className="flex h-8 w-full rounded border border-zinc-200 placeholder:overflow-visible placeholder:text-sm"
+            />
           </label>
-          <label htmlFor="confirmation">
+          <label className="w-full text-sm" htmlFor="confirm">
             confirm password
-            <input type="text" id="confirmation" />
+            <input
+              type="text"
+              id="confirm"
+              className="flex h-8 w-full rounded border border-zinc-200 placeholder:overflow-visible placeholder:text-sm"
+            />
           </label>
           {error && <span>{error}</span>}
-          <button onClick={confirmPassword}>Done</button>
+          <button
+            className="w-full rounded bg-blue-800/90 p-1 text-white"
+            onClick={confirmPassword}
+          >
+            Done
+          </button>
         </div>
       )}
     </div>
