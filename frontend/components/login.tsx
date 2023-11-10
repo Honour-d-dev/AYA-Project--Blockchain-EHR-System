@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { mnemonicToAccount } from "viem/accounts";
 import { createWalletClient, http, publicActions } from "viem";
 import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
-import { users } from "@/app/user-types";
+import { users } from "@/constants/constants";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -30,6 +30,7 @@ export default function Login() {
         functionName: "getUserType",
       });
 
+      //also get user cid to load the user data
       sessionStorage.setItem("usertype", users[usertype]);
       sessionStorage.setItem("password", password);
 
