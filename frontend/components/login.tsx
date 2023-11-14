@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { mnemonicToAccount } from "viem/accounts";
 import { createWalletClient, http, publicActions } from "viem";
 import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
-import { users } from "@/constants/constants";
+import { users } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 
 export default function Login() {

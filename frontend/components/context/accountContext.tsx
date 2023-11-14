@@ -1,4 +1,5 @@
 "use client";
+import Account from "@/utils/account";
 import {
   createContext,
   useState,
@@ -6,12 +7,6 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { HDAccount, WalletClient } from "viem";
-
-type Account = {
-  account: HDAccount;
-  client: WalletClient;
-};
 
 interface TAccountContext {
   account?: Account;

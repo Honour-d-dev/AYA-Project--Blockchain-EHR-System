@@ -11,7 +11,7 @@ import { LoginmanagerAbi } from "@/abis/LoginManagerAbi";
 import { useContext, useRef, useState } from "react";
 import { encrypt } from "@metamask/browser-passworder";
 import { AccountContext } from "@/components/context/accountContext";
-import { users } from "@/constants/constants";
+import { users } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 
 type TAccountDetails = {

@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useRef, useState } from "react";
-import { storageClient, users } from "@/constants/constants";
+import { storageClient, users } from "@/utils/constants";
 import { HealthRecordManagerAbi } from "@/abis/HealthRecordManager";
 import { AccountContext } from "@/components/context/accountContext";
 import { english, generateMnemonic, mnemonicToAccount } from "viem/accounts";
@@ -8,6 +8,7 @@ import { type CIDString } from "web3.storage";
 import { createWalletClient, http, publicActions } from "viem";
 import { encrypt } from "@metamask/browser-passworder";
 import { useRouter } from "next/navigation";
+import Account from "@/utils/account";
 
 type TUserDetails = {
   firstName: string;
@@ -27,7 +28,7 @@ export default function Signup() {
   const [stage, setStage] = useState(1);
   const [error, showError] = useState<string>();
   const [privateDetails, setPrivateDetails] = useState({} as TPrivateDetails);
-  const { setAccount } = useContext(AccountContext);
+  const { account, setAccount } = useContext(AccountContext);
 
   const userDetails = useRef({} as TUserDetails);
   const router = useRouter();
@@ -41,15 +42,9 @@ export default function Signup() {
     const password = document.getElementById("password") as HTMLInputElement;
     const confirm = document.getElementById("confirm") as HTMLInputElement;
     if (password.value === confirm.value) {
-      const file = new File([JSON.stringify(userDetails.current)], "data");
-      console.log(await file.text());
-      const cid = "abcd"; //await storageClient.put([file], { wrapWithDirectory: false });
-      const seedPhrase = generateMnemonic(english);
-      setPrivateDetails({
-        seedPhrase,
-        password: password.value,
-        cid,
-      });
+      setAccount(new Account());
+      sessionStorage.setItem("password", password.value);
+
       setStage((k) => k + 1);
     } else {
       showError("password missmatch");
@@ -57,20 +52,11 @@ export default function Signup() {
   };
 
   const initAccount = async () => {
-    const account = mnemonicToAccount(privateDetails.seedPhrase);
-    const client = createWalletClient({
-      account,
-      transport: http(),
-    }).extend(publicActions);
-    const enSeedPhrase = await encrypt(
-      privateDetails.password,
-      privateDetails.seedPhrase,
-    );
-    localStorage.setItem("data", enSeedPhrase);
-    setAccount({
-      account,
-      client,
-    });
+    const file = new File([JSON.stringify(userDetails.current)], "data");
+    console.log(await file.text());
+    //const cid = await storageClient.put([file], { wrapWithDirectory: false });
+    //account.uploadCid(cid)
+
     //cid & usertype will be put on-chain here(using the SCA and paymaster)
     //cid might/should also be added to the account context
     router.push(`/${userDetails.current.type}`);
@@ -200,7 +186,7 @@ export default function Signup() {
         <div className="flex flex-col items-center gap-4">
           <span>copy your seed phrase</span>
           <div className="grid grid-cols-3 gap-2 rounded border border-zinc-300 p-4">
-            {privateDetails.seedPhrase.split(" ").map((word) => {
+            {account?.seedPhrase.split(" ").map((word) => {
               return <div key={word}>{word}</div>;
             })}
           </div>
