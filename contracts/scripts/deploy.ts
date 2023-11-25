@@ -1,20 +1,28 @@
-import { formatEther, parseEther } from "viem";
+import { parseEther } from "viem";
 import hre from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = BigInt(currentTimestampInSeconds + 60);
+  const HealthRecordManager = await hre.viem.deployContract(
+    "HealthRecordManager",
+    ["dev@gmail.com"]
+  );
 
-  const lockedAmount = parseEther("0.001");
+  const payManager = await hre.viem.deployContract(
+    "contracts/PayManagerV2.sol:PayManager",
+    ["0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"]
+  );
 
-  const lock = await hre.viem.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+  await HealthRecordManager.write.addPayManager([payManager.address]);
+  await payManager.write.setRecordManager([
+    "0xcc5307ba8e8c4138ec390b4c3378bc56a3dd78e9",
+  ]);
+  await payManager.write.addFund({ value: parseEther("0.3", "wei") });
+  await payManager.write.addStake([60 * 60 * 24], {
+    value: parseEther("0.11", "wei"),
   });
 
   console.log(
-    `Lock with ${formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+    `Health Record Manager is deployed at ${HealthRecordManager} Pay Manager v2 is deployed at ${payManager.address}`
   );
 }
 

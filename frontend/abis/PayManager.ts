@@ -142,6 +142,13 @@ const PayManagerAbi = [
   },
   {
     inputs: [],
+    name: "removeFunds",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
