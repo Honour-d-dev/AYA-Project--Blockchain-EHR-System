@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AccountProvider } from "@/hooks/accountContext";
 import "./globals.css";
-import { KeyringProvider } from "@/hooks/useKeyring";
+import { W3StorageProvider } from "@/hooks/useW3";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,11 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <KeyringProvider>
+      <W3StorageProvider>
         <AccountProvider>
           <body className={inter.className}>{children}</body>
         </AccountProvider>
-      </KeyringProvider>
+      </W3StorageProvider>
     </html>
   );
 }

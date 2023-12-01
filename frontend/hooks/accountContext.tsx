@@ -1,29 +1,22 @@
 "use client";
 
 import { useAlchemyProvider } from "@/hooks/useAlchemyProvider";
-import { AlchemyProvider } from "@alchemy/aa-alchemy";
+import type { AlchemyProvider } from "@alchemy/aa-alchemy";
 import { useMagicSigner } from "@/hooks/useMagic";
-import { Address, PublicClient, createPublicClient, custom } from "viem";
-import {
-  createContext,
-  useState,
-  PropsWithChildren,
-  useEffect,
-  useCallback,
-  useContext,
-  useMemo,
-} from "react";
+import { Address, type PublicClient, createPublicClient, custom } from "viem";
+import { createContext, useState, PropsWithChildren, useEffect, useCallback, useContext, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { HealthRecordManagerAbi } from "@/abis/HealthRecordManager";
 import { HealthRecordManagerAddress, chain, users } from "@/utils/constants";
-import { useKeyring } from "@/hooks/useKeyring";
-//import * as Delegation from "@ucanto/core/delegation";
-//import { delegate } from "@/server/w3up-client";
+import { useW3, type Client } from "@/hooks/useW3";
+import * as Delegation from "@ucanto/core/delegation";
+import { delegate } from "@/server/w3up-client";
+import { HealthRecordManagerV2Abi } from "@/abis/HeahthRecordManagerV2abi";
 
-type Client = ReturnType<typeof useKeyring>[0]["client"];
+//type Client = ReturnType<typeof useW3>[0]["client"];
 
 interface TAccountContext {
   login: (email: string) => Promise<void>;
+  loginExistingUser: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   // Properties
   smartClient: AlchemyProvider;
@@ -38,26 +31,62 @@ export const AccountContext = createContext({} as TAccountContext);
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { magic, signer } = useMagicSigner();
-  const { smartClient, connectClientToAccount, disconnectClientFromAccount } =
-    useAlchemyProvider();
-  const [, { loadAgent }] = useKeyring();
+  const { smartClient, connectClientToAccount, disconnectClientFromAccount } = useAlchemyProvider();
+  const [{ client }] = useW3();
   const [ownerAddress, setOwnerAddress] = useState<Address>();
   const [scaAddress, setScaAddress] = useState<Address>();
   const [username, setUsername] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  //const [magicClient, setMagicClient] = useState()
+
   const magicClient = useMemo(() => {
     if (magic) {
       console.log("magicClient init");
       return createPublicClient({
         transport: custom(magic.rpcProvider),
         chain,
-        batch: {
-          multicall: true,
-        },
       });
     }
   }, [magic]);
   const router = useRouter();
+
+  const loginExistingUser = useCallback(
+    async (email: string) => {
+      if (!magic || !magic.user || !signer || !magicClient) {
+        throw new Error("Magic not initialized");
+      }
+      const isLoggedIn = await magic.user.isLoggedIn();
+      if (!isLoggedIn) {
+        await magic.auth.loginWithEmailOTP({
+          email,
+          showUI: true,
+        });
+        /**might chexk for device change */
+      }
+
+      const metadata = await magic.user.getInfo();
+      if (!metadata.publicAddress || !metadata.email) {
+        throw new Error("Magic login failed");
+      }
+
+      const userInfo = await magicClient.readContract({
+        account: metadata.publicAddress as Address,
+        abi: HealthRecordManagerV2Abi,
+        address: HealthRecordManagerAddress,
+        functionName: "gerUserInfo",
+        args: [metadata.email],
+      });
+
+      setIsLoggedIn(true);
+      connectClientToAccount(signer, userInfo.owner);
+      setUsername(metadata.email); //might remove
+      setOwnerAddress(metadata.publicAddress as Address);
+      setScaAddress(userInfo.owner);
+
+      router.push(`/${users[userInfo.userType]}?cid=${userInfo.cid}`);
+    },
+    [magic, magicClient, signer],
+  );
 
   const login = useCallback(
     async (email: string) => {
@@ -65,7 +94,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         throw new Error("Magic not initialized");
       }
 
-      const didToken = await magic.auth.loginWithMagicLink({
+      const didToken = await magic.auth.loginWithEmailOTP({
         email,
         showUI: true,
       });
@@ -116,54 +145,60 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       if (!isLoggedIn) {
         return;
       }
+
       console.log("running effect");
       const metadata = await magic.user.getInfo();
       if (!metadata.publicAddress || !metadata.email) {
         throw new Error("Magic login failed");
       }
 
-      await loadAgent();
-
-      // const space = client?.spaces().find((space) => space.name === "Honour");
-      // if (!space && client) {
-      // let proof = await fetch(
-      //   `http://localhost:3000/api/w3up-client/${client.did()}`,
-      // );
-      // const proof = await delegate(client.did());
-      // console.log(proof);
-      // const space = await ipfsClient.addSpace(proof);
-      // await ipfsClient.setCurrentSpace(space.did());
-      //}
-
-      const [cid, type] = await Promise.all([
-        magicClient.readContract({
-          abi: HealthRecordManagerAbi,
-          address: HealthRecordManagerAddress,
-          functionName: "getHealthRecord",
-        }),
-        magicClient.readContract({
-          abi: HealthRecordManagerAbi,
-          address: HealthRecordManagerAddress,
-          functionName: "gerUserType",
-          args: [metadata.email],
-        }),
-      ]);
+      const userInfo = await magicClient.readContract({
+        account: metadata.publicAddress as Address,
+        abi: HealthRecordManagerV2Abi,
+        address: HealthRecordManagerAddress,
+        functionName: "gerUserInfo",
+        args: [metadata.email],
+      });
 
       setIsLoggedIn(isLoggedIn);
-      const connectedClient = connectClientToAccount(signer);
+      const connectedClient = connectClientToAccount(signer, userInfo.owner);
       setUsername(metadata.email);
       setOwnerAddress(metadata.publicAddress as Address);
       setScaAddress(await connectedClient.getAddress());
-
-      //router.push(`/${users[type]}`);
     }
+
     fetchData();
+    /**ideally this should only run once(on start up) if the user is logged in
+     * and triger the go to profile button on the homepage when fetchdata is done
+     */
   }, [magicClient, connectClientToAccount]);
+
+  useEffect(() => {
+    async function loadClient() {
+      if (client) {
+        /**Recieving a delegation to the shared space from the server */
+        const proof = await delegate(client.agent.did());
+
+        if (proof.data) {
+          const delegation = await Delegation.extract(new Uint8Array(proof.data));
+          if (delegation.ok) {
+            console.log(delegation);
+            const space = await client.addSpace(delegation.ok);
+            await client.setCurrentSpace(space.did());
+            console.log(client.currentSpace());
+          }
+        }
+      }
+    }
+
+    loadClient();
+  }, [client]);
 
   return (
     <AccountContext.Provider
       value={{
         login,
+        loginExistingUser,
         logout,
         scaAddress,
         ownerAddress,

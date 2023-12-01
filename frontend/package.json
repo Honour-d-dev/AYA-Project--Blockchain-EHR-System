@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "prettier": {
+    "printWidth": 120,
     "plugins": [
       "prettier-plugin-tailwindcss"
     ]
@@ -20,17 +21,23 @@
     "@metamask/browser-passworder": "^4.1.0",
     "@ucanto/core": "^9.0.1",
     "@ucanto/principal": "^9.0.0",
-    "@w3ui/react-keyring": "^7.0.0",
-    "@web3-storage/w3up-client": "^11.0.1",
+    "@w3ui/react": "^1.0.0",
+    "@web3-storage/w3up-client": "^11.1.0",
     "dotenv": "^16.3.1",
+    "ipfs-utils": "^9.0.14",
     "magic-sdk": "^21.2.1",
+    "native-fetch": "^4.0.2",
     "next": "^14.0.3",
+    "next-safe-action": "^5.1.3",
     "node-fetch": "^3.3.2",
     "react": "^18",
     "react-dom": "^18",
-    "viem": "^1.18.4"
+    "react-icons": "^4.12.0",
+    "viem": "^1.18.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

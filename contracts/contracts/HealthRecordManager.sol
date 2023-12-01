@@ -14,22 +14,26 @@ contract HealthRecordManager {
   struct Patient {
     address owner;
     string cid;
-    address[] acesslist;
   }
 
   struct Doctor {
     address owner;
+    string cid;
     address heaithCareId;
-    address[] patients;
   }
 
   struct HealthCI {
     address admin;
+    string cid;
     address[] doctors;
     address[] patients;
   }
 
-  address payManager;
+  struct Researcher {
+    address owner;
+    string cid;
+  }
+
   //for pre-verification
   mapping(string email => address id) private medistashUser;
 
@@ -42,10 +46,6 @@ contract HealthRecordManager {
   constructor(string memory email) {
     usertype[msg.sender] = UserTypes.Admin;
     medistashUser[email] = msg.sender;
-  }
-
-  function addPayManager(address pm) external onlyAdmin {
-    payManager = pm;
   }
 
   function initPatient(address id, string memory cid, string memory email) external {
@@ -76,24 +76,12 @@ contract HealthRecordManager {
   function grantAccess(address id, address someone) external {
     Patient storage user = patients[id];
     require(user.owner == msg.sender, "unauthorized");
-    user.acesslist.push(someone);
     hasAccess[id][someone] = true;
   }
 
   function revokeAccess(address id, address someone) external {
     Patient storage user = patients[id];
     require(user.owner == msg.sender, "unauthorized");
-    uint length = user.acesslist.length;
-    for (uint i; i < length; i++) {
-      if (user.acesslist[i] == someone) {
-        if (i == length - 1) {
-          user.acesslist.pop();
-        } else {
-          user.acesslist[i] = user.acesslist[length - 1];
-          user.acesslist.pop();
-        }
-      }
-    }
     hasAccess[id][someone] = false;
   }
 
@@ -121,21 +109,8 @@ contract HealthRecordManager {
     return patients[someoneId].cid;
   }
 
-  function getAccessList() external view returns (address[] memory) {
-    require(usertype[msg.sender] == UserTypes.Patient, "not a patient");
-    return patients[msg.sender].acesslist;
-  }
-
   function gerUserType(string memory email) external view returns (UserTypes) {
     return usertype[medistashUser[email]];
-  }
-
-  function isOwner(address id, address owner) external view returns (bool) {
-    require(msg.sender == payManager, "not pay manager");
-    if (patients[id].owner != owner) {
-      return false;
-    }
-    return true;
   }
 
   modifier onlyAdmin() {

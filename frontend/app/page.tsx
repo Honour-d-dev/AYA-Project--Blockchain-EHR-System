@@ -1,19 +1,34 @@
 "use client";
 import Link from "next/link";
 import { useAccount } from "@/hooks/accountContext";
+import { HealthRecordManagerV2Abi } from "@/abis/HeahthRecordManagerV2abi";
+import { HealthRecordManagerAddress, users } from "@/utils/constants";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { isLoggedIn } = useAccount();
+  const { isLoggedIn, magicClient, ownerAddress, username } = useAccount();
+  const router = useRouter();
+
+  const gotoPage = async () => {
+    const userInfo = await magicClient!.readContract({
+      account: ownerAddress,
+      abi: HealthRecordManagerV2Abi,
+      address: HealthRecordManagerAddress,
+      functionName: "gerUserInfo",
+      args: [username!],
+    });
+    router.push(`/${users[userInfo.userType]}?cid=${userInfo.cid}`);
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
       {isLoggedIn && (
-        <Link
-          href={"/usertype/id"}
+        <button
+          onClick={gotoPage}
           className="absolute right-4 top-8 min-w-[70px] gap-4 rounded bg-blue-800/90 p-2 text-white"
         >
           {`continue session >`}
-        </Link>
+        </button>
       )}
       <div className="flex h-[70vh] w-[70vw] flex-col items-center justify-center gap-4">
         <h1 className=" text-center text-4xl">MEDISTASH</h1>

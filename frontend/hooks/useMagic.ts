@@ -11,17 +11,14 @@ export const useMagicSigner = () => {
   }
 
   const magicApiKey = process.env.NEXT_PUBLIC_MAGIC_API_KEY!; //temp
-  const magic = new Magic(magicApiKey, { testMode: true, network: "sepolia" });
+  const magic = new Magic(magicApiKey, { network: "sepolia" });
 
   const magicWalletClient = createWalletClient({
     transport: custom(magic.rpcProvider),
     chain,
   });
 
-  const magicSigner: SmartAccountSigner = new WalletClientSigner(
-    magicWalletClient,
-    "magic",
-  );
+  const magicSigner: SmartAccountSigner = new WalletClientSigner(magicWalletClient, "magic");
 
   return useMemo(() => {
     return { magic, signer: magicSigner };
