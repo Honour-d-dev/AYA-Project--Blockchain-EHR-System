@@ -1,18 +1,18 @@
 "use client";
 import { useRegister } from "@/hooks/useRegister";
-import { UserInfo } from "@/utils/types";
+import { UserInfo } from "@/lib/types";
 import { useRef } from "react";
 
 export default function Doctor() {
   const userDetails = useRef({} as UserInfo<"Doctor">);
-  const initRegister = useRegister("Doctor", userDetails.current);
+  const { initAccount, progress, error } = useRegister("Doctor", userDetails.current);
 
   return (
     <div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          initRegister();
+          initAccount();
         }}
         className="flex flex-col items-center gap-4 rounded-md border border-gray-200 p-6 shadow-lg"
       >
@@ -76,9 +76,7 @@ export default function Doctor() {
             type="text"
             id="HId"
             required
-            onChange={(e) =>
-              (userDetails.current.healthcareId = e.target.value)
-            }
+            onChange={(e) => (userDetails.current.healthcareId = e.target.value)}
           />
         </label>
         <label className="w-full text-sm" htmlFor="password">
@@ -100,10 +98,7 @@ export default function Doctor() {
           />
         </label>
 
-        <button
-          className="w-full rounded bg-blue-800/90 p-1 text-white"
-          type="submit"
-        >
+        <button className="w-full rounded bg-blue-800/90 p-1 text-white" type="submit">
           Sign up
         </button>
       </form>

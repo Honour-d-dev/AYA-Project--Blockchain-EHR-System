@@ -6,7 +6,7 @@ import { useMagicSigner } from "@/hooks/useMagic";
 import { Address, type PublicClient, createPublicClient, custom } from "viem";
 import { createContext, useState, PropsWithChildren, useEffect, useCallback, useContext, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { HealthRecordManagerAddress, chain, users } from "@/utils/constants";
+import { HealthRecordManagerAddress, chain, users } from "@/lib/constants";
 import { useW3, type Client } from "@/hooks/useW3";
 import * as Delegation from "@ucanto/core/delegation";
 import { delegate } from "@/server/w3up-client";
@@ -37,7 +37,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [scaAddress, setScaAddress] = useState<Address>();
   const [username, setUsername] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  //const [magicClient, setMagicClient] = useState()
 
   const magicClient = useMemo(() => {
     if (magic) {

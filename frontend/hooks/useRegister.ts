@@ -3,16 +3,17 @@
 import { Address, encodeFunctionData } from "viem";
 import { useAccount } from "./accountContext";
 import { HealthRecordManagerV2Abi } from "@/abis/HeahthRecordManagerV2abi";
-import { HealthRecordManagerAddress, defaultSponsor, encodePaymasterData, users } from "@/utils/constants";
+import { HealthRecordManagerAddress, defaultSponsor, encodePaymasterData, users } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { useW3 } from "@/hooks/useW3";
-import { UserInfo, ValidUserTypes } from "@/utils/types";
+import { UserInfo, ValidUserTypes } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
 export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: UserInfo<T>) => {
   const [accountCreated, setAccountCreated] = useState(false);
-  /**TODO: add states for each registration phase */
-  const { isLoggedIn, ownerAddress, smartClient, magicClient, loginExistingUser, login } = useAccount();
+  const [error, setError] = useState<string>();
+  const [progress, setProgress] = useState<"magic login" | "uploading file" | "sending UserOP" | null>(null);
+  const { isLoggedIn, ownerAddress, smartClient, magicClient, login } = useAccount();
   const [{ client }] = useW3();
   const router = useRouter();
 
@@ -24,34 +25,41 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
         });
         console.log(file);
         /**Todo :check currentSpace before uploading, possibly throw an error */
-        const cid = await client.uploadFile(file);
-        console.log(cid.toString());
+        try {
+          if (!client.currentSpace()) throw new Error("client doesn't have a space");
 
-        const uo = await smartClient.sendUserOperation(
-          {
-            data: encodeFunctionData({
-              abi: HealthRecordManagerV2Abi,
-              functionName: "initUser",
-              args: [ownerAddress, cid.toString(), userDetails.email, users.indexOf(type)],
-            }),
-            target: HealthRecordManagerAddress,
-          },
-          {
-            paymasterAndData: encodePaymasterData(sponsor() ?? defaultSponsor),
-          },
-        );
+          setProgress("uploading file");
+          const cid = await client.uploadFile(file);
+          console.log(cid.toString());
 
-        console.log(uo);
-        router.push(`/${type}?cid=${cid.toString()}`);
+          setProgress("sending UserOP");
+          const uo = await smartClient.sendUserOperation(
+            {
+              data: encodeFunctionData({
+                abi: HealthRecordManagerV2Abi,
+                functionName: "initUser",
+                args: [ownerAddress, cid.toString(), userDetails.email, users.indexOf(type)],
+              }),
+              target: HealthRecordManagerAddress,
+            },
+            {
+              paymasterAndData: encodePaymasterData(sponsor() ?? defaultSponsor),
+            },
+          );
+
+          console.log(uo);
+          router.push(`/${type}?cid=${cid.toString()}`);
+        } catch (e) {
+          let error = "";
+          if (e instanceof Error) error = e.message;
+          setError(`user registration failed with: ${error}`);
+          setProgress(null);
+        }
       }
     }
 
     register();
   }, [isLoggedIn, ownerAddress, smartClient, client, accountCreated]);
-
-  if ("healthCareId" in userDetails && typeof userDetails.healthCareId === "string") {
-    userDetails.healthCareId;
-  }
 
   const sponsor = () => {
     return "healthCareId" in userDetails
@@ -74,15 +82,20 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
     });
 
     if (isUser) {
-      /**ideally should error saying user exists rather than
-       * try to log them in
-       */
-      await loginExistingUser(userDetails.email);
+      setError("email already exists");
+      setProgress(null);
     }
-
-    await login(userDetails.email);
-    setAccountCreated(true);
+    try {
+      setProgress("magic login");
+      await login(userDetails.email);
+      setAccountCreated(true);
+    } catch (e) {
+      let error = "";
+      if (e instanceof Error) error = e.message;
+      setError(`magic authentication failed: ${error}`);
+      setProgress(null);
+    }
   };
 
-  return initAccount;
+  return { initAccount, progress, error };
 };

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRegister } from "@/hooks/useRegister";
-import { UserInfo } from "@/utils/types";
+import { UserInfo } from "@/lib/types";
 import { useRef } from "react";
 
 export default function Patient() {
   const userDetails = useRef({} as UserInfo<"Patient">);
-  const initAccount = useRegister("Patient", userDetails.current);
+  const { initAccount, progress, error } = useRegister("Patient", userDetails.current);
 
   return (
     <div>

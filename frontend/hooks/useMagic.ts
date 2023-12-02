@@ -2,7 +2,7 @@ import { WalletClientSigner, type SmartAccountSigner } from "@alchemy/aa-core";
 import { Magic } from "magic-sdk";
 import { createWalletClient, custom } from "viem";
 import "dotenv/config";
-import { chain } from "@/utils/constants";
+import { chain } from "@/lib/constants";
 import { useMemo } from "react";
 
 export const useMagicSigner = () => {

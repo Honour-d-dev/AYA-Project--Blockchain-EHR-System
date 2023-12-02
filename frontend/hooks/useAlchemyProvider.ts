@@ -1,13 +1,5 @@
-import {
-  PayManagerAddress,
-  chain,
-  dummyPaymasterData,
-  payManagerV2,
-} from "@/utils/constants";
-import {
-  LightSmartContractAccount,
-  getDefaultLightAccountFactoryAddress,
-} from "@alchemy/aa-accounts";
+import { PayManagerAddress, chain, dummyPaymasterData, payManagerV2 } from "@/lib/constants";
+import { LightSmartContractAccount, getDefaultLightAccountFactoryAddress } from "@alchemy/aa-accounts";
 import { AlchemyProvider } from "@alchemy/aa-alchemy";
 import {
   PaymasterAndDataMiddleware,
@@ -27,19 +19,12 @@ export const useAlchemyProvider = () => {
     }),
   );
 
-  const paymasterDataMiddleware: PaymasterAndDataMiddleware = async (
-    uoStruct,
-  ) => {
+  const paymasterDataMiddleware: PaymasterAndDataMiddleware = async (uoStruct) => {
     const uo = await resolveProperties(uoStruct);
-    const paymasterAndData = concatHex([
-      payManagerV2,
-      uo.paymasterAndData as Hex,
-    ]);
+    const paymasterAndData = concatHex([payManagerV2, uo.paymasterAndData as Hex]);
 
-    const verificationGasLimit =
-      BigInt(uo.verificationGasLimit ?? 0) + BigInt(1000);
-    const preVerificationGas =
-      BigInt(uo.preVerificationGas ?? 0) + BigInt(1000);
+    const verificationGasLimit = BigInt(uo.verificationGasLimit ?? 0) + BigInt(1000);
+    const preVerificationGas = BigInt(uo.preVerificationGas ?? 0) + BigInt(1000);
     const callGasLimit = BigInt(uo.callGasLimit ?? 0) + BigInt(1000);
 
     return {
@@ -50,9 +35,7 @@ export const useAlchemyProvider = () => {
     };
   };
 
-  const dummyPaymasterDataMiddleware: PaymasterAndDataMiddleware = async (
-    _uoStruct,
-  ) => {
+  const dummyPaymasterDataMiddleware: PaymasterAndDataMiddleware = async (_uoStruct) => {
     const paymasterAndData = concatHex([payManagerV2, dummyPaymasterData]);
     return {
       paymasterAndData,

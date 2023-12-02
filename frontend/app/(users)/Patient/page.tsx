@@ -4,8 +4,8 @@ import Image from "next/image";
 import defaultImage from "@/public/defaultProfile.png";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { UserInfo } from "@/utils/types";
-import { gateway } from "@/utils/constants";
+import { UserInfo } from "@/lib/types";
+import { gateway } from "@/lib/constants";
 import { CiSearch } from "react-icons/ci";
 import { IoIosHome } from "react-icons/io";
 import { BsStack } from "react-icons/bs";
@@ -13,6 +13,9 @@ import { IoCalendar } from "react-icons/io5";
 import { MdNotificationsActive } from "react-icons/md";
 import { HiMiniUser } from "react-icons/hi2";
 import { MdLogout } from "react-icons/md";
+import Link from "next/link";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Patient() {
   const cid = useSearchParams().get("cid");
@@ -31,31 +34,48 @@ export default function Patient() {
     getUserInfo();
   }, [cid]);
   return (
-    <div className="flex h-screen w-screen flex-row items-center justify-start">
-      {/* side bar */}
-      <div className="relative flex h-screen w-[20vw] min-w-[180px] flex-col border border-gray-300 p-4">
-        <h1 className="mb-12 text-center text-2xl font-bold text-blue-900/75">
+    <div className="relative flex h-screen w-screen flex-row">
+      {/* sidebar */}
+      <div className="relative flex h-screen w-[170px] flex-col border border-gray-300 p-4 pt-8">
+        <Link href={"/"} className="mb-12 text-center text-2xl font-bold text-blue-900/75">
           MEDISTASH
-        </h1>
-        <div className="flex flex-row items-center justify-center gap-1 rounded-3xl bg-blue-900/75 p-2 text-center font-medium text-white">
-          <IoIosHome />
-          Dashboard
-        </div>
-        <div className="flex flex-row items-center gap-1 p-4 font-medium opacity-70">
-          <IoCalendar />
-          Appointments
-        </div>
-        <div className="flex flex-row items-center gap-1 p-4 font-medium opacity-70">
-          <BsStack /> Records
-        </div>
-        <div className="flex flex-row items-center gap-1 p-4 font-medium opacity-70">
-          <MdNotificationsActive />
-          Notification
-        </div>
-        <div className="flex flex-row items-center gap-1 p-4 font-medium opacity-70">
-          <HiMiniUser />
-          Profile
-        </div>
+        </Link>
+        <ToggleGroup type="single" defaultValue="dashboard" orientation="vertical" className="flex flex-col gap-5">
+          <ToggleGroupItem
+            value="dashboard"
+            className="flex flex-row items-center gap-1 rounded-3xl p-4 font-semibold data-[state=off]:self-start data-[state=on]:bg-blue-900/75 data-[state=on]:text-white data-[state=off]:opacity-70"
+          >
+            <IoIosHome />
+            Dashboard
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="appointments"
+            className="flex flex-row items-center gap-1 rounded-3xl p-4 font-semibold data-[state=off]:self-start data-[state=on]:bg-blue-900/75 data-[state=on]:text-white data-[state=off]:opacity-70"
+          >
+            <IoCalendar />
+            Appointments
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="records"
+            className="flex flex-row items-center gap-1 rounded-3xl p-4 font-semibold data-[state=off]:self-start data-[state=on]:bg-blue-900/75 data-[state=on]:text-white data-[state=off]:opacity-70"
+          >
+            <BsStack /> Records
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="notification"
+            className="flex flex-row items-center gap-1 rounded-3xl p-4 font-semibold data-[state=off]:self-start data-[state=on]:bg-blue-900/75 data-[state=on]:text-white data-[state=off]:opacity-70"
+          >
+            <MdNotificationsActive />
+            Notification
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="profile"
+            className="flex flex-row items-center gap-1 rounded-3xl p-4 font-semibold data-[state=off]:self-start data-[state=on]:bg-blue-900/75 data-[state=on]:text-white data-[state=off]:opacity-70"
+          >
+            <HiMiniUser />
+            Profile
+          </ToggleGroupItem>
+        </ToggleGroup>
         <button
           onClick={async () => await logout()}
           className="flow-row absolute bottom-8 flex items-center gap-2 font-medium text-red-500"
@@ -64,29 +84,16 @@ export default function Patient() {
           log out
         </button>
       </div>
-      {/* main page */}
-      <div className="relative flex h-screen w-[80vw] flex-col">
+      <div className="relative flex h-screen grow flex-col">
         {/* header */}
-        <div className="absolute right-0 top-0 flex w-full flex-row items-center justify-end gap-2 border-y border-gray-300 p-8">
-          <div className="absolute left-4 text-xl font-medium">
-            Welcome, {userInfo?.firstName}
-          </div>
+        <div className="absolute top-0 flex h-[15vh] w-full flex-row items-center justify-end gap-2 border-y border-gray-300 p-8">
+          <div className="absolute left-4 text-xl font-medium">Welcome, {userInfo?.firstName}</div>
           <div className="flex flex-row items-center gap-1 rounded-md border border-gray-300 bg-white p-1 shadow-sm">
             <CiSearch />
-            <input
-              type="text"
-              className=" focus-visible:outline-none"
-              placeholder="search by..."
-            />
+            <input type="text" className=" focus-visible:outline-none" placeholder="search by..." />
           </div>
-          <Image
-            src={defaultImage}
-            alt="propile image"
-            className="h-10 w-10 rounded-full"
-          />
+          <Image src={defaultImage} alt="propile image" className="h-10 w-10 rounded-full" />
         </div>
-        {/* page content */}
-        <div></div>
       </div>
     </div>
   );

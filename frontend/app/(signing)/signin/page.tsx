@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { HealthRecordManagerAddress, users } from "@/utils/constants";
+import { HealthRecordManagerAddress, users } from "@/lib/constants";
 import { useAccount } from "@/hooks/accountContext";
 import { HealthRecordManagerV2Abi } from "@/abis/HeahthRecordManagerV2abi";
 import Link from "next/link";
