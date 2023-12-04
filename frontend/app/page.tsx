@@ -6,7 +6,7 @@ import { HealthRecordManagerAddress, users } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { isLoggedIn, magicClient, ownerAddress, username } = useAccount();
+  const { isLoggedIn, magicClient, ownerAddress, email } = useAccount();
   const router = useRouter();
 
   const gotoPage = async () => {
@@ -15,7 +15,7 @@ export default function Home() {
       abi: HealthRecordManagerV2Abi,
       address: HealthRecordManagerAddress,
       functionName: "gerUserInfo",
-      args: [username!],
+      args: [email!],
     });
     router.push(`/${users[userInfo.userType]}?cid=${userInfo.cid}`);
   };

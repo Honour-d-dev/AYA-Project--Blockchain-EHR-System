@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: UserInfo<T>) => {
   const [accountCreated, setAccountCreated] = useState(false);
   const [error, setError] = useState<string>();
-  const [progress, setProgress] = useState<"magic login" | "uploading file" | "sending UserOP" | null>(null);
+  const [progress, setProgress] = useState<"Authenticating" | "Generating cid" | "Sending userOp" | null>(null);
   const { isLoggedIn, ownerAddress, smartClient, magicClient, login } = useAccount();
   const [{ client }] = useW3();
   const router = useRouter();
@@ -28,11 +28,11 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
         try {
           if (!client.currentSpace()) throw new Error("client doesn't have a space");
 
-          setProgress("uploading file");
+          setProgress("Generating cid");
           const cid = await client.uploadFile(file);
           console.log(cid.toString());
 
-          setProgress("sending UserOP");
+          setProgress("Sending userOp");
           const uo = await smartClient.sendUserOperation(
             {
               data: encodeFunctionData({
@@ -52,7 +52,7 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
         } catch (e) {
           let error = "";
           if (e instanceof Error) error = e.message;
-          setError(`user registration failed with: ${error}`);
+          setError(`user registration failed: ${error}`);
           setProgress(null);
         }
       }
@@ -84,9 +84,12 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
     if (isUser) {
       setError("email already exists");
       setProgress(null);
+      /**TODO should return here
+       * not adding the return for testing purposes
+       */
     }
     try {
-      setProgress("magic login");
+      setProgress("Authenticating");
       await login(userDetails.email);
       setAccountCreated(true);
     } catch (e) {

@@ -3,6 +3,7 @@
 import { useRegister } from "@/hooks/useRegister";
 import { UserInfo } from "@/lib/types";
 import { useRef } from "react";
+import { CgSpinner } from "react-icons/cg";
 
 export default function Patient() {
   const userDetails = useRef({} as UserInfo<"Patient">);
@@ -18,7 +19,7 @@ export default function Patient() {
         className="flex flex-col items-center gap-4 rounded-md border border-gray-200 p-6 shadow-lg"
       >
         <h1>Get started!</h1>
-        <div className=" flex flex-row gap-4">
+        <div className=" flex w-full flex-row gap-4">
           <label className="w-full text-sm" htmlFor="first">
             first name
             <input
@@ -71,8 +72,15 @@ export default function Patient() {
           />
         </label>
         <button className="w-full rounded bg-blue-800/90 p-1 text-white" type="submit">
-          Sign up
+          {progress ? (
+            <span className=" flex flex-row items-center justify-center gap-4">
+              {progress} <CgSpinner className="h-6 w-6 animate-spin" />{" "}
+            </span>
+          ) : (
+            "sign up"
+          )}
         </button>
+        <span className="text-xs text-red-500">{error}</span>
       </form>
     </div>
   );

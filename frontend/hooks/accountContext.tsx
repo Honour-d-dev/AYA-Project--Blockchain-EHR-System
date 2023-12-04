@@ -23,7 +23,7 @@ interface TAccountContext {
   magicClient?: PublicClient;
   ownerAddress?: Address;
   scaAddress?: Address;
-  username?: string;
+  email?: string;
   isLoggedIn: boolean;
 }
 
@@ -35,7 +35,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [{ client }] = useW3();
   const [ownerAddress, setOwnerAddress] = useState<Address>();
   const [scaAddress, setScaAddress] = useState<Address>();
-  const [username, setUsername] = useState<string>();
+  const [email, setEmail] = useState<string>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   const magicClient = useMemo(() => {
@@ -78,7 +78,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
       setIsLoggedIn(true);
       connectClientToAccount(signer, userInfo.owner);
-      setUsername(metadata.email); //might remove
+      setEmail(metadata.email); //might remove
       setOwnerAddress(metadata.publicAddress as Address);
       setScaAddress(userInfo.owner);
 
@@ -105,7 +105,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
       setIsLoggedIn(true);
       const connectedClient = connectClientToAccount(signer);
-      setUsername(metadata.email);
+      setEmail(metadata.email);
       setOwnerAddress(metadata.publicAddress as Address);
       setScaAddress(await connectedClient.getAddress());
     },
@@ -118,19 +118,20 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     console.log("logging out...");
 
-    console.log(!(await magic.user.isLoggedIn()));
-    let a = magic.user.logout();
-    a.on("done", (done) => {
-      console.log(done);
-      setIsLoggedIn(false);
-      disconnectClientFromAccount();
-      setUsername(undefined);
-      setOwnerAddress(undefined);
-      setScaAddress(undefined);
-      console.log("logged out");
-    }).on("error", (e) => {
-      console.log(e);
-    });
+    const handle = magic.user.logout();
+
+    handle
+      .on("done", (done) => {
+        setIsLoggedIn(false);
+        disconnectClientFromAccount();
+        setEmail(undefined);
+        setOwnerAddress(undefined);
+        setScaAddress(undefined);
+        console.log(`logged out is ${done}`);
+      })
+      .on("error", (e) => {
+        console.log(e);
+      });
   }, [magic, disconnectClientFromAccount]);
 
   useEffect(() => {
@@ -161,7 +162,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
       setIsLoggedIn(isLoggedIn);
       const connectedClient = connectClientToAccount(signer, userInfo.owner);
-      setUsername(metadata.email);
+      setEmail(metadata.email);
       setOwnerAddress(metadata.publicAddress as Address);
       setScaAddress(await connectedClient.getAddress());
     }
@@ -204,7 +205,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         smartClient,
         magicClient,
         isLoggedIn,
-        username,
+        email,
       }}
     >
       {children}
