@@ -1,4 +1,4 @@
-import { PayManagerAddress, chain, dummyPaymasterData, payManagerV2 } from "@/lib/constants";
+import { chain, dummyPaymasterData, payManagerV2 } from "@/lib/constants";
 import { LightSmartContractAccount, getDefaultLightAccountFactoryAddress } from "@alchemy/aa-accounts";
 import { AlchemyProvider } from "@alchemy/aa-alchemy";
 import {
@@ -9,13 +9,13 @@ import {
 } from "@alchemy/aa-core";
 import { useCallback, useState } from "react";
 import { type Address, Hex, concatHex } from "viem";
-import "dotenv/config";
+import { env } from "@/env/env.mjs";
 
 export const useAlchemyProvider = () => {
   const [smartClient, setSmartClient] = useState<AlchemyProvider>(
     new AlchemyProvider({
       chain,
-      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
+      apiKey: env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     }),
   );
 

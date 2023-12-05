@@ -3,19 +3,19 @@ import { DID, CAR } from "@ucanto/core";
 import { importDAG } from "@ucanto/core/delegation";
 import * as Signer from "@ucanto/principal/ed25519";
 import * as Client from "@web3-storage/w3up-client";
-import "dotenv/config";
 import { action } from "@/server/safe-action";
 import z from "zod";
+import { env } from "@/env/env.mjs";
 
 const schema = z.string().startsWith("did:key");
-const principal = Signer.parse(process.env.DID_KEY!);
+const principal = Signer.parse(env.DID_KEY);
 
 const initClient = async () => {
   // Add proof that this agent has been delegated capabilities on the space
   const client = await Client.create({ principal });
   const space = client.spaces().find((space) => space.name === "Honour");
   if (!space) {
-    const proof = parseProof(process.env.PROOF!);
+    const proof = parseProof(env.PROOF);
     const space = await client.addSpace(proof);
     await client.setCurrentSpace(space.did());
   }
