@@ -179,7 +179,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         /**Recieving a delegation to the shared space from the server */
         console.log(client);
         const proof = await delegate(client.agent.did());
-        console.log(proof.data);
+        console.log(proof);
 
         if (proof.data) {
           const delegation = await Delegation.extract(new Uint8Array(proof.data));
