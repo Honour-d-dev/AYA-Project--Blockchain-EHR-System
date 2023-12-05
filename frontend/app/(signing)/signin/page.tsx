@@ -7,7 +7,8 @@ import Link from "next/link";
 
 export default function Signin() {
   const [email, setemail] = useState("");
-  const { loginExistingUser, login, magicClient, ownerAddress } = useAccount();
+  const [error, setError] = useState<string>();
+  const { loginExistingUser, magicClient, ownerAddress } = useAccount();
 
   const handleLogin = async () => {
     if (magicClient) {
@@ -18,12 +19,11 @@ export default function Signin() {
         functionName: "isUser",
         args: [email],
       });
-      if (isUser) {
-        await loginExistingUser(email);
-      } else {
-        //show error invalid user
+      if (!isUser) {
+        setError("user does not exist");
         return;
       }
+      await loginExistingUser(email);
     }
   };
 
@@ -41,6 +41,7 @@ export default function Signin() {
         <button className="w-full rounded bg-blue-800/90 p-1 text-white" onClick={handleLogin}>
           log in
         </button>
+        {error && <span className="text-xs text-red-400">{error}</span>}
         <span className="text-xs">
           Don't have an account?{" "}
           <Link className="text-blue-800/90 hover:underline" href={`/signup`}>

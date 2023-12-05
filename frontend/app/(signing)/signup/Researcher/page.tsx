@@ -3,11 +3,10 @@ import { useRegister } from "@/hooks/useRegister";
 import { UserInfo } from "@/lib/types";
 import { useRef } from "react";
 import { CgSpinner } from "react-icons/cg";
-import { Address } from "viem";
 
-export default function Doctor() {
-  const userDetails = useRef({} as UserInfo<"Doctor">);
-  const { initAccount, progress, error } = useRegister("Doctor", userDetails.current);
+export default function Researcher() {
+  const userDetails = useRef({} as UserInfo<"Researcher">);
+  const { initAccount, progress, error } = useRegister("Researcher", userDetails.current);
 
   return (
     <div>
@@ -69,16 +68,6 @@ export default function Doctor() {
             id="DOB"
             required
             onChange={(e) => (userDetails.current.DOB = e.target.value)}
-          />
-        </label>
-        <label className="w-full text-sm" htmlFor="HId">
-          hospital id
-          <input
-            className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
-            type="text"
-            id="HId"
-            required
-            onChange={(e) => (userDetails.current.healthCareId = e.target.value as Address)}
           />
         </label>
         <button className="w-full rounded bg-blue-800/90 p-1 text-white" type="submit">

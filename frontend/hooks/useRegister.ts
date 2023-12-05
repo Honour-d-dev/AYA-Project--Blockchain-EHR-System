@@ -24,7 +24,7 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
           type: "application/json",
         });
         console.log(file);
-        /**Todo :check currentSpace before uploading, possibly throw an error */
+
         try {
           if (!client.currentSpace()) throw new Error("client doesn't have a space");
 
@@ -64,8 +64,8 @@ export const useRegister = <T extends ValidUserTypes>(type: T, userDetails: User
   const sponsor = () => {
     return "healthCareId" in userDetails
       ? Array.isArray(userDetails.healthCareId)
-        ? (userDetails.healthCareId[0] as Address)
-        : (userDetails.healthCareId as Address)
+        ? userDetails.healthCareId[0]
+        : userDetails.healthCareId
       : undefined;
   };
 

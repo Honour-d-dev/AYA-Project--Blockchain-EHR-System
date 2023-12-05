@@ -5,15 +5,19 @@ export type UserTypes = (typeof users)[number];
 
 export type ValidUserTypes = Exclude<UserTypes, "invalidUser" | "Admin">;
 
-export type UserInfo<T extends keyof User> = {
+export type UserInfo<T extends ValidUserTypes> = T extends "HealthCI"
+  ? Omit<_UserInfo<T>, "firstName" | "lastName" | "DOB">
+  : _UserInfo<T>;
+
+type _UserInfo<T extends ValidUserTypes> = {
   firstName: string;
   lastName: string;
   email: string;
   phoneNo: string;
   DOB?: string;
-} & Partial<User[T]>;
+} & Partial<_User[T]>;
 
-type User = {
+type _User = {
   Patient: Patient;
   Doctor: Doctor;
   Researcher: Researcher;
@@ -39,7 +43,7 @@ type Patient = {
 };
 
 type Doctor = {
-  healthcareId: string;
+  healthCareId: Address;
   accessList: Address[];
   appointment: {
     date: string;
@@ -50,5 +54,9 @@ type Doctor = {
 type Researcher = {};
 
 type HealthCI = {
+  name: string;
+  address: string;
   doctors: Address[];
 };
+
+let a: UserInfo<"HealthCI">;

@@ -3,11 +3,10 @@ import { useRegister } from "@/hooks/useRegister";
 import { UserInfo } from "@/lib/types";
 import { useRef } from "react";
 import { CgSpinner } from "react-icons/cg";
-import { Address } from "viem";
 
-export default function Doctor() {
-  const userDetails = useRef({} as UserInfo<"Doctor">);
-  const { initAccount, progress, error } = useRegister("Doctor", userDetails.current);
+export default function HealthCI() {
+  const userDetails = useRef({} as UserInfo<"HealthCI">);
+  const { initAccount, progress, error } = useRegister("HealthCI", userDetails.current);
 
   return (
     <div>
@@ -19,36 +18,14 @@ export default function Doctor() {
         className="flex flex-col items-center gap-4 rounded-md border border-gray-200 p-6 shadow-lg"
       >
         <h1>Get started!</h1>
-        <div className=" flex flex-row gap-4">
-          <label className="w-full text-sm" htmlFor="first">
-            first name
-            <input
-              className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
-              type="text"
-              id="first"
-              required
-              onChange={(e) => (userDetails.current.firstName = e.target.value)}
-            />
-          </label>
-          <label className="w-full text-sm" htmlFor="last">
-            last name
-            <input
-              className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
-              type="text"
-              id="last"
-              required
-              onChange={(e) => (userDetails.current.lastName = e.target.value)}
-            />
-          </label>
-        </div>
-        <label className="w-full text-sm" htmlFor="mobile">
-          phone number
+        <label className="w-full text-sm" htmlFor="name">
+          name
           <input
             className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
             type="text"
-            id="mobile"
+            id="name"
             required
-            onChange={(e) => (userDetails.current.phoneNo = e.target.value)}
+            onChange={(e) => (userDetails.current.name = e.target.value)}
           />
         </label>
         <label className="w-full text-sm" htmlFor="email">
@@ -61,30 +38,30 @@ export default function Doctor() {
             onChange={(e) => (userDetails.current.email = e.target.value)}
           />
         </label>
-        <label className="w-full text-sm" htmlFor="DOB">
-          date of birth
-          <input
-            className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
-            type="date"
-            id="DOB"
-            required
-            onChange={(e) => (userDetails.current.DOB = e.target.value)}
-          />
-        </label>
-        <label className="w-full text-sm" htmlFor="HId">
-          hospital id
+        <label className="w-full text-sm" htmlFor="mobile">
+          phone number
           <input
             className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
             type="text"
-            id="HId"
+            id="mobile"
             required
-            onChange={(e) => (userDetails.current.healthCareId = e.target.value as Address)}
+            onChange={(e) => (userDetails.current.phoneNo = e.target.value)}
+          />
+        </label>
+        <label className="w-full text-sm" htmlFor="address">
+          location/address
+          <input
+            className="flex h-8 w-full rounded border border-zinc-300 pl-2 placeholder:overflow-visible placeholder:text-sm"
+            type="text"
+            id="address"
+            required
+            onChange={(e) => (userDetails.current.address = e.target.value)}
           />
         </label>
         <button className="w-full rounded bg-blue-800/90 p-1 text-white" type="submit">
           {progress ? (
             <span className=" flex flex-row items-center justify-center gap-4">
-              {progress} <CgSpinner className="h-6 w-6 animate-spin" />{" "}
+              {progress} <CgSpinner className="h-6 w-6 animate-spin" />
             </span>
           ) : (
             "sign up"

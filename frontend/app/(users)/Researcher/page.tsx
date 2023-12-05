@@ -16,9 +16,9 @@ import { MdLogout } from "react-icons/md";
 import Link from "next/link";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-export default function HealthCI() {
+export default function Researcher() {
   const cid = useSearchParams().get("cid");
-  const [userInfo, setUserInfo] = useState<UserInfo<"HealthCI">>();
+  const [userInfo, setUserInfo] = useState<UserInfo<"Researcher">>();
   const [tabValue, setTabValue] = useState("dashboard");
   const { logout } = useAccount();
 
@@ -26,7 +26,7 @@ export default function HealthCI() {
     async function getUserInfo() {
       if (cid) {
         const response = await fetch(gateway(cid));
-        const userInfo: UserInfo<"HealthCI"> = await response.json();
+        const userInfo: UserInfo<"Researcher"> = await response.json();
         console.log(response, userInfo);
         setUserInfo(userInfo);
       }
@@ -94,7 +94,7 @@ export default function HealthCI() {
       <div className="relative flex h-screen grow flex-col items-center justify-start gap-8">
         {/* header */}
         <div className="flex h-[15vh] w-full flex-row items-center justify-end gap-2 border-y border-gray-300 p-8">
-          <div className="absolute left-4 text-xl font-medium"> {userInfo?.name}</div>
+          <div className="absolute left-4 text-xl font-medium">Welcome {userInfo?.firstName}</div>
           <div className="flex flex-row items-center gap-1 rounded-md border border-gray-300 bg-white p-1 shadow-sm">
             <CiSearch />
             <input type="text" className=" focus-visible:outline-none" placeholder="search by..." />
@@ -109,7 +109,7 @@ export default function HealthCI() {
               <tbody>
                 <tr>
                   <td className="pr-2">Name:</td>
-                  <td>{`${userInfo?.name}`}</td>
+                  <td>{`${userInfo?.firstName} ${userInfo?.lastName}`}</td>
                 </tr>
                 <tr>
                   <td className="pr-2">Email:</td>
@@ -119,10 +119,7 @@ export default function HealthCI() {
                   <td className="pr-2">Phone:</td>
                   <td>{userInfo?.phoneNo}</td>
                 </tr>
-                <tr>
-                  <td className="pr-2">Location:</td>
-                  <td>{userInfo?.address}</td>
-                </tr>
+                <tr></tr>
               </tbody>
             </table>
           </div>

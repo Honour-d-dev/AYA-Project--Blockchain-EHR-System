@@ -78,7 +78,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
       setIsLoggedIn(true);
       connectClientToAccount(signer, userInfo.owner);
-      setEmail(metadata.email); //might remove
+      setEmail(metadata.email);
       setOwnerAddress(metadata.publicAddress as Address);
       setScaAddress(userInfo.owner);
 
