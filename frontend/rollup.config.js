@@ -8,8 +8,9 @@ export default {
   },
   plugins: [
     commonjs({
-      dynamicRequireTargets: ["node_modules/@w3ui"],
+      dynamicRequireTargets: ["node_modules/@w3ui/*.js"],
       ignoreDynamicRequires: true,
+      strictRequires: true,
     }),
   ],
 };
