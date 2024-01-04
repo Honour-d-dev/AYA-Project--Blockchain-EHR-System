@@ -3,6 +3,7 @@ import { DID, CAR } from "@ucanto/core";
 import { importDAG } from "@ucanto/core/delegation";
 import * as Signer from "@ucanto/principal/ed25519";
 import * as Client from "@web3-storage/w3up-client";
+import { StoreConf } from "@web3-storage/access/stores/store-conf";
 import { action } from "@/server/safe-action";
 import z from "zod";
 import { env } from "@/env/env.mjs";
@@ -28,7 +29,7 @@ function parseProof(data: string) {
   return importDAG(car.blocks.values());
 }
 
-export const delegate = action(schema, async (did) => {
+export const delegate = async (did: string) => {
   // Create a delegation for a specific DID
   const audience = DID.parse(did);
   const client = await initClient();
@@ -39,4 +40,4 @@ export const delegate = action(schema, async (did) => {
   );
   // Serializing the delegation before sending it to the client
   return (await delegation.archive()).ok;
-});
+};
