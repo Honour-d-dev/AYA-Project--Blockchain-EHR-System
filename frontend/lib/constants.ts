@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { Address, encodeAbiParameters, parseAbiParameters } from "viem";
 import { sepolia } from "viem/chains";
 

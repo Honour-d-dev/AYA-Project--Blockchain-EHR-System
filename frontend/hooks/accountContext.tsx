@@ -181,8 +181,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         const proof = await delegate(client.agent.did());
         console.log(proof);
 
-        if (proof) {
-          const delegation = await Delegation.extract(new Uint8Array(proof));
+        if (proof.data) {
+          const delegation = await Delegation.extract(new Uint8Array(proof.data));
           if (delegation.ok) {
             console.log(delegation);
             const space = await client.addSpace(delegation.ok);
